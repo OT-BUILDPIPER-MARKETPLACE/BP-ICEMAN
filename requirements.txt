@@ -1,0 +1,6 @@
+setuptools
+pyyaml
+wheel
+pyinstaller
+boto3
+awscli

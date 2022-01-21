@@ -1,0 +1,9 @@
+aws_profile: da-np
+
+region: us-east-1
+
+ec2_tags:
+  start_stop_schedule : "true"
+
+rds_tags:
+  start_stop_schedule : "true"
