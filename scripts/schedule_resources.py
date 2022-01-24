@@ -3,15 +3,6 @@
 import os, yaml, argparse, logging, json
 import boto3
 from botocore.exceptions import ClientError
-
-
-class SystemLogFilter(logging.Filter):
-    def filter(self, record):
-        if not hasattr(record, 'ec2_ids'):
-            record.ec2_ids = 'abc'
-        if not hasattr(record, 'rds_ids'):
-            record.ec2_ids = '[]'
-        return True
         
 
 SCHEULE_ACTION_ENV_KEY = "SCHEDULE_ACTION"
