@@ -1,4 +1,4 @@
-<img src="snapshots/iceman.jpg" width="200">
+<img src="images/iceman.jpg" width="200">
 
 # BP-ICEMAN 
 
@@ -21,7 +21,7 @@ Configuration for this utility will be managed in YAML format. Below are the con
 
 ## SAMPLE CONF FILE
 
-![configimage](snapshots/config.png)
+![configimage](images/config.png)
 
 ## USAGE
 
@@ -36,8 +36,8 @@ To run this utility locally from your system.Follow below steps.
    
    - ***SCHEDULE_ACTION:*** Action which is  going to perform i.e start or stop.
 
-  
-![startstop](snapshots/startstop.png)
+
+![startstop](images/startstop.png)
 
 - Run the python script.
 
@@ -49,11 +49,11 @@ To run this utility using docker.Follow below steps.
 - Make changes to configuration files as required i.e config/schedule_resources.yml.
 - Then do some  changes in Makefile i.e set the path of configuration file (CONF_PATH) and set  value of  SCHEDULE_ACTION(***start*** or ***stop***) which is going to perform .
 
-![makefile](snapshots/makefile.png)
+![makefile](images/makefile.png)
 
 - Execute the ***make*** command . 
 
-![make](snapshots/make.png)
+![make](images/make.png)
 
 
 
