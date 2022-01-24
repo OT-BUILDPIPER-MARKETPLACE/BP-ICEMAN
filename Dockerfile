@@ -9,7 +9,7 @@ RUN pyinstaller scripts/schedule_resources.py --onefile
 
 FROM python:slim-buster AS deployer
 WORKDIR /opt/
-RUN mkdir -p config
+RUN mkdir -p config /var/log/ot
 COPY --from=builder /opt/dist/schedule_resources .
 ENTRYPOINT ["./schedule_resources"]
 

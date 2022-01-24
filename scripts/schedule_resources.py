@@ -7,12 +7,13 @@ from botocore.exceptions import ClientError
 
 SCHEULE_ACTION_ENV_KEY = "SCHEDULE_ACTION"
 CONF_PATH_ENV_KEY = "CONF_PATH"
+LOG_PATH = "/var/log/ot/aws-resource-scheduler.log"
 ADDITIONAL_LOG_DETAILS={'ec2_ids':'[]', 'rds_ids':'[]'}
 
 LOGGER = logging.getLogger("imported_module")
 LOGGER.setLevel(logging.INFO)
 
-FILE_HANDLER = logging.FileHandler('schedule_start_stop.log')
+FILE_HANDLER = logging.FileHandler(LOG_PATH)
 STREAM_HANDLER = logging.StreamHandler()
 
 STREAM_FORMATTER = logging.Formatter(json.dumps(
