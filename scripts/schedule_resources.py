@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
-import os, yaml, argparse, logging, json
+import sys, os, argparse, logging, yaml, json
+import pathlib
 import boto3
 from botocore.exceptions import ClientError
+SCRIPT_PATH = pathlib.Path(__file__).parent.resolve()
+sys.path.insert(1, f'{SCRIPT_PATH}/../lib')
+import load_yaml_config , generate_aws_session , aws_resource_tag_factory
         
 
 SCHEULE_ACTION_ENV_KEY = "SCHEDULE_ACTION"
@@ -27,74 +31,12 @@ LOGGER.addHandler(FILE_HANDLER)
 LOGGER.addHandler(STREAM_HANDLER)
 
 
-def _getProperty(property_file_path):  
-    
-    try: 
-        load_property = open(property_file_path)
-        parse_yaml = yaml.load(load_property, Loader=yaml.FullLoader)
-        LOGGER.info(f"Loaded conf file succesfully.",extra=ADDITIONAL_LOG_DETAILS)
-        return parse_yaml
-    except FileNotFoundError:
-        LOGGER.error(f"Unable to find conf file {property_file_path}. Please mention correct property file path.",extra=ADDITIONAL_LOG_DETAILS)
-        exit()
-
-    return None
-
 def _fetch_instance_ids(client, service, tags):
-
-    filters = []
-    instance_ids = []
     
-    if service == "ec2":
-
-        for tag in tags:
-            filters.append({'Name': 'tag:'+str(tag), 'Values': [str(tags[tag])]})
-
-        response = client.describe_instances(
-            Filters=filters
-                        )
-        
-        for reservation in (response["Reservations"]):
-            for instance in reservation["Instances"]:
-                instance_ids.append(instance["InstanceId"])
-
-    
-    elif service == "rds":
-        dbs = client.describe_db_instances()
-        instance_ids = []
-
-        for db in dbs['DBInstances']:
-
-            db_tags = _get_tags_for_db(client,db)
-            tag_found = False
+    aws_resource_finder = aws_resource_tag_factory.getResoruceFinder(client,service)
+    instance_ids = aws_resource_finder._get_resources_using_tags(tags)
             
-            for tag in tags:
-                for db_tag in db_tags:
-                    if db_tag['Key'] == tag and db_tag['Value'] == tags[tag]:
-                        tag_found = True
-                        break
-                    else:
-                        tag_found = False
-                        continue
-
-                if not tag_found:
-                    break
-                else:
-                    continue
-
-            if tag_found:
-                instance_ids.append(db["DBInstanceIdentifier"])
-
-    else:
-        logging.warning(f"Invalid service {service} provided",extra=ADDITIONAL_LOG_DETAILS)            
-        
     return instance_ids
-
-def _get_tags_for_db(client, db):
-
-    instance_arn = db['DBInstanceArn']
-    instance_tags = client.list_tags_for_resource(ResourceName=instance_arn)
-    return instance_tags['TagList']
 
 
 def _start_ec2(ec2_client,instance_ids,ec2_id_details):
@@ -172,11 +114,11 @@ def _scheduleFactory(properties, aws_profile, args):
     try:
         
         LOGGER.info(f'Connecting to AWS.',extra=ADDITIONAL_LOG_DETAILS)
-        
+
         if aws_profile:
-            session = boto3.Session(profile_name=aws_profile)
+            session = generate_aws_session._create_session(aws_profile)
         else:
-            session = boto3.Session()
+            session = generate_aws_session._create_session()
 
         LOGGER.info(f'Connection to AWS established.',extra=ADDITIONAL_LOG_DETAILS)
 
@@ -278,7 +220,7 @@ def _scheduleResources(args):
 
     LOGGER.info(f'Fetching properties from conf file: {args.property_file_path}.',extra=ADDITIONAL_LOG_DETAILS)
 
-    properties = _getProperty(args.property_file_path)
+    properties = load_yaml_config._getProperty(args.property_file_path)
 
     LOGGER.info(f'Properties fetched from conf file.',extra=ADDITIONAL_LOG_DETAILS)
 
