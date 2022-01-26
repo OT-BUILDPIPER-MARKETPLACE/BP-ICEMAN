@@ -4,3 +4,4 @@ wheel
 pyinstaller
 boto3
 awscli
+JSON-log-formatter

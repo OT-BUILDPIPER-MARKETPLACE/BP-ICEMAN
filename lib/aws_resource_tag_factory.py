@@ -1,3 +1,4 @@
+import logging
 
 class getResoruceFinder:
     def __init__(self, client, service):
@@ -16,7 +17,7 @@ class getResoruceFinder:
             return self._get_rds_ids_using_tags(tags)
 
         else:
-            logging.warning(f"Invalid service {service} provided",extra=ADDITIONAL_LOG_DETAILS)            
+            logging.warning(f"Invalid service {service} provided")            
 
     
     def _get_ec2_ids_using_tags(self,tags):

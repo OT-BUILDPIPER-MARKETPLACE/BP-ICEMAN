@@ -21,7 +21,17 @@ Configuration for this utility will be managed in YAML format. Below are the con
 
 ## SAMPLE CONF FILE
 
-![configimage](images/config.png)
+```
+aws_profile: default
+
+region: us-east-1
+
+ec2_tags:
+  start_stop_schedule : "true"
+
+rds_tags:
+  start_stop_schedule : "true"
+```
 
 ## USAGE
 
@@ -29,36 +39,38 @@ Configuration for this utility will be managed in YAML format. Below are the con
 
 ### LOCALLY
 To run this utility locally from your system.Follow below steps.
-- Clone this repo link.
-- Make changes to configuration files as required i.e config/schedule_resources.yml.
+- Clone this repo.
+- Create your configuration file. Can take reference from ```config/schedule_resources_sample.yml```.
 - Export two environment variables .
-   - ***CONF_PATH:*** Path of the configuration file.
+   - ```CONF_PATH:``` Path of the configuration file.
    
-   - ***SCHEDULE_ACTION:*** Action which is  going to perform i.e start or stop.
+   - ```SCHEDULE_ACTION:``` Action which is  going to perform i.e start or stop.
 
-
-![startstop](images/startstop.png)
+   ```
+   export CONF_PATH="/home/opstree/BP-ICEMAN/config/schedule_resources_sample.yml"
+   ```
+   ```
+   export SCHEDULE_ACTION="start"
+   ```
 
 - Run the python script.
 
-``` python3 schedule_resources.py```
+   ```
+   python3 scripts/schedule_resources.py 
+   ```
 
 ### USING DOCKER
 To run this utility using docker.Follow below steps.
 - Clone this repo.
 - Make changes to configuration files as required i.e config/schedule_resources.yml.
-- Then do some  changes in Makefile i.e set the path of configuration file (CONF_PATH) and set  value of  SCHEDULE_ACTION(***start*** or ***stop***) which is going to perform .
+- Build the docker image using Makefile
+  ```
+   make build VERSION=<Provide image tag here>
+  ```
+  ![make_build](images/make_build.png)
 
-![makefile](images/makefile.png)
-
-- Execute the ***make*** command . 
-
-![make](images/make.png)
-
-
-
-
-
-
-
- 
+- Run the application
+  ```
+  make run VERSION=<Provide build image tag> CONF_PATH=<Conf-Path> ACTION=<start/stop>
+  ```
+  ![make_run](images/make_run.png) 
