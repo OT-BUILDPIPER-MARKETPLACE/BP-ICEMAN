@@ -12,7 +12,7 @@ import load_yaml_config , generate_aws_session , aws_resource_tag_factory , aws_
 
 SCHEULE_ACTION_ENV_KEY = "SCHEDULE_ACTION"
 CONF_PATH_ENV_KEY = "CONF_PATH"
-LOG_PATH = "/var/log/ot/aws-resource-scheduler.log"
+LOG_PATH = "/ot/aws-resource-scheduler.log"
 
 FORMATTER = json_log_formatter.VerboseJSONFormatter()
 LOGGER = logging.getLogger()
@@ -168,4 +168,3 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--property-file-path", help="Provide path of property file", default = os.environ[CONF_PATH_ENV_KEY], type=str)
     args = parser.parse_args()
     _scheduleResources(args)
-
