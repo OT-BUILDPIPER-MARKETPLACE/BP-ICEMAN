@@ -7,8 +7,8 @@ import boto3
 from botocore.exceptions import ClientError
 SCRIPT_PATH = pathlib.Path(__file__).parent.resolve()
 sys.path.insert(1, f'{SCRIPT_PATH}/../lib')
-import load_yaml_config , generate_aws_session , aws_resource_tag_factory , aws_ec2_actions_factory , aws_rds_actions_factory
-        
+import load_yaml_config
+from otawslibs import generate_aws_session , aws_resource_tag_factory , aws_ec2_actions_factory , aws_rds_actions_factory
 
 SCHEULE_ACTION_ENV_KEY = "SCHEDULE_ACTION"
 CONF_PATH_ENV_KEY = "CONF_PATH"

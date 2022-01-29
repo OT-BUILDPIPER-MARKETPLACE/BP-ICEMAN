@@ -5,7 +5,7 @@ WORKDIR /opt/
 COPY . .
 
 RUN apt-get update && \
-    apt-get install -y binutils libc-bin
+    apt-get install -y binutils libc-bin git
 
 RUN mkdir -p /ot/logs /ot/config && \
     pip3 install --no-cache --upgrade -r requirements.txt
