@@ -7,17 +7,12 @@ COPY . .
 RUN apt-get update && \
     apt-get install -y binutils libc-bin git
 
-RUN mkdir -p /ot/logs /ot/config && \
-    pip3 install --no-cache --upgrade -r requirements.txt
+RUN pip3 install --no-cache --upgrade -r requirements.txt
 
 RUN pyinstaller --paths=lib scripts/schedule_resources.py --onefile
 
 
-FROM gcr.io/distroless/python3-debian11 AS deployer
-
-COPY --from=builder /ot /ot
-
-WORKDIR /ot
+FROM opstree/python3-distroless:1.0
 
 COPY --from=builder /opt/dist/schedule_resources .
 

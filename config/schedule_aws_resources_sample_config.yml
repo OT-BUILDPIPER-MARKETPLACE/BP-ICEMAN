@@ -1,4 +1,4 @@
-aws_profile: default
+aws_profile: da-np
 
 region: us-east-1
 
