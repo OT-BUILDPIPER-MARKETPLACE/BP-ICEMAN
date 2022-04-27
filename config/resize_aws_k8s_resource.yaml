@@ -1,0 +1,17 @@
+# context: "arn:aws:eks:us-east-1:192678465434:cluster/eks-test"
+context: "minikube"
+
+namespace: default
+
+deployment_annotations:
+  start_stop_schedule : "true"
+
+sts_annotations:
+  start_stop_schedule : "true"
+
+replicas: 5
+
+folder_structure:
+    - k8s:
+        - deployment.py
+          sts.py
