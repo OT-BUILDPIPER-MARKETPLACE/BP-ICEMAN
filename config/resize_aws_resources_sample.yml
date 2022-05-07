@@ -1,0 +1,29 @@
+aws_profile: default
+region:
+      - us-east-1
+      
+services:
+  rds:
+    resize_params:
+        allocatedStorage: 70
+        dbInstanceClass: "db.t2.micro"
+    tags:
+       "Key": "owner"
+       "Value": "opstree"
+
+  redis:
+    resize_params:
+        cacheNodeType: "cache.t2.medium"
+    tags:
+       "Key": "owner"
+       "Value": "opstree"
+
+  ec2:
+    resize_params:
+      instance_type: t3.medium
+
+tags:
+   "Key": "owner"
+   "Value": "opstree"
+
+  
