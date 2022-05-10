@@ -1,3 +1,3 @@
 BP-ICEMAN
 
-K8s resource scheduler
+K8's resource scheduler
