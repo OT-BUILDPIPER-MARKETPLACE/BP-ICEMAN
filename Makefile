@@ -1,7 +1,7 @@
 VERSION ?= 1.0
-CONF_PATH ?=${PWD}/config/schedule_aws_resources_sample_config.yml
+CONF_PATH ?=${PWD}/config/resize_aws_k8s_resource.yaml
 
 build:
-	docker build -t opstree/schedule_aws_resources:$(VERSION) .
+	docker build -t opstree/iceman:${VERSION} .
 run:
-	docker run -it --rm --name schedule_aws_resources host -v ${CONF_PATH}:/etc/ot/schedule_aws_resources.yml:ro -e SCHEDULE_ACTION=${ACTION} -e CONF_PATH='/etc/ot/schedule_aws_resources.yml' -v ~/.aws:/root/.aws opstree/schedule_aws_resources:${VERSION} 
+	docker run -it --rm --name iceman -v ${CONF_PATH}:/opt/config/resize_aws_k8s_resource.yaml:ro -e SCHEDULE_ACTION=${ACTION} -e CONF_PATH='/opt/config/resize_aws_k8s_resource.yaml' -v ~/.kube:/root/.kube opstree/iceman:${VERSION} 
