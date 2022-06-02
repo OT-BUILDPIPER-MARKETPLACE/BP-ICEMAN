@@ -58,7 +58,7 @@ To run this utility locally from your system.Follow below steps.
 
    - ```K8s_SCHEDULE_ACTION:``` Action which is  going to perform i.e resize.
    ```
-   export CONF_PATH="/home/opstree/BP-ICEMAN/config/schedule_resources_sample_config.yml"
+   export CONF_PATH="${pwd}/BP-ICEMAN/config/schedule_resources_sample_config.yml"
    ```
    ```
    export AWS_SCHEDULE_ACTION="start"
