@@ -1,0 +1,9 @@
+setuptools
+pyyaml
+wheel
+pyinstaller
+boto3
+awscli
+JSON-log-formatter
+kubernetes
+git+https://github.com/OT-PYTHON-UTILS/ot-aws-libs.git@develop
