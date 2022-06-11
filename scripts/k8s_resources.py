@@ -1,16 +1,14 @@
-import schedule_aws_k8s_resources as main
+import os
+import schedule_resource_logger
 from kubernetes import client, config
+from botocore.exceptions import ClientError
 
 
 SCHEDULE_ACTION_ENV_KEY = "K8s_SCHEDULE_ACTION"
+LOG_PATH = "/ot/aws-resource-scheduler.log"
 
-main.LOGGER.setLevel(main.logging.INFO)
 
-main.FILE_HANDLER.setFormatter(main.FORMATTER)
-main.STREAM_HANDLER.setFormatter(main.FORMATTER)
-
-main.LOGGER.addHandler(main.FILE_HANDLER)
-main.LOGGER.addHandler(main.STREAM_HANDLER)
+LOGGER = schedule_resource_logger._get_logging(LOG_PATH)
 
 
 def deployment_having_annotation(cli, namespace, deployment_annot):
@@ -60,21 +58,21 @@ def statefulset_replica_change(cli, properties, statefulset):
             namespace=namespace, name=statefulset, body=body))
 
 
-def _resourceManagerFactory(properties, kube_context, args):
+def _resourceManagerFactory(properties, kube_context, resource_type,  args):
 
     try:
 
-        main.LOGGER.info(f'Connecting to Kubernetes Cluster.')
+        LOGGER.info(f'Connecting to Kubernetes Cluster.')
 
         config.load_kube_config(context=kube_context)
 
-        main.LOGGER.info(f'Connection to EKS Cluster established.')
+        LOGGER.info(f'Connection to EKS Cluster established.')
 
         namespace = properties['k8s']['namespace']
 
         if properties['k8s']['deployment_annotations']:
 
-            main.LOGGER.info(f'Reading deployment annotations')
+            LOGGER.info(f'Reading deployment annotations')
 
             for schedule in properties['k8s']['deployment_annotations']:
                 if schedule:
@@ -84,12 +82,12 @@ def _resourceManagerFactory(properties, kube_context, args):
 
             if deployment_annot:
 
-                main.LOGGER.info(
+                LOGGER.info(
                     f'Found deployment annotations details for filtering : {deployment_annot}')
 
                 v2client = client.AppsV1Api()
 
-                main.LOGGER.info(
+                LOGGER.info(
                     f'Scanning deployments based on annotations {deployment_annot} provided')
 
                 deployments = deployment_having_annotation(
@@ -97,26 +95,26 @@ def _resourceManagerFactory(properties, kube_context, args):
 
                 if deployments:
 
-                    main.LOGGER.info(
+                    LOGGER.info(
                         f'Found deployments resources {deployments}  based on annotations provided: {deployment_annot}')
 
-                    if main.os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
+                    if os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
 
                         deployment_replica_change(
                             v2client, properties, deployments)
                     else:
-                        main.logging.error(
+                        logging.error(
                             f"{SCHEDULE_ACTION_ENV_KEY} env not set")
 
                 else:
-                    main.LOGGER.warning(
+                    LOGGER.warning(
                         f'No deployments found on the basis of tag filters provided in conf file in context {properties["context"]} ')
             else:
-                main.LOGGER.warning(f' No deployment annotations details mentioned for filtering in the config file')
+                LOGGER.warning(f' No deployment annotations details mentioned for filtering in the config file')
                 
         if properties['k8s']['sts_annotations']:
 
-            main.LOGGER.info(f'Reading statefulset annotations')
+            LOGGER.info(f'Reading statefulset annotations')
 
             for schedule in properties['k8s']['sts_annotations']:
                 if schedule:
@@ -126,12 +124,12 @@ def _resourceManagerFactory(properties, kube_context, args):
 
             if sts_annot:
 
-                main.LOGGER.info(
+                LOGGER.info(
                     f'Found statefulset annotations details for filtering : {sts_annot}')
 
                 v2client = client.AppsV1Api()
 
-                main.LOGGER.info(
+                LOGGER.info(
                     f'Scanning deployments based on annotations {deployment_annot} provided')
 
                 statefulset = statefulset_having_annotation(
@@ -139,27 +137,27 @@ def _resourceManagerFactory(properties, kube_context, args):
 
                 if statefulset:
 
-                    main.LOGGER.info(
+                    LOGGER.info(
                         f'Found statefulset resources {statefulset}  based on annotations provided: {sts_annot}')
 
-                    if main.os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
+                    if os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
 
                         statefulset_replica_change(
                             v2client, properties, statefulset)
                     else:
-                        main.logging.error(
+                        logging.error(
                             f"{SCHEDULE_ACTION_ENV_KEY} env not set")
 
                 else:
-                    main.LOGGER.warning(
+                    LOGGER.warning(
                         f'No statefulset found on the basis of tag filters provided in conf file in context {properties["context"]} ')
 
         else:
-            main.LOGGER.warning(
+            LOGGER.warning(
                 f'Found annotations in config file but no statefulset annotations details mentioned for filtering')
 
 
-    except main.ClientError as e:
+    except ClientError as e:
         if "An error occurred (AuthFailure)" in str(e):
             raise Exception(' Authentication Failure!!!! .. Please mention valid profile in property file or use valid credentials').with_traceback(
                 e.__traceback__)

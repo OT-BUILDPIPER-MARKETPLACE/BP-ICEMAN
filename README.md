@@ -69,5 +69,5 @@ To run this utility locally from your system.Follow below steps.
 - Run the python script.
 
    ```
-   python3 scripts/schedule_aws_k8s_resources.py 
+   python3 scripts/schedule_resource_factory.py 
    ```

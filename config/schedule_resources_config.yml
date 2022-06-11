@@ -1,0 +1,28 @@
+
+aws:
+  ec2_tags:
+    start_stop_schedule : "true"
+  region: us-east-2
+  rds_tags:
+    start_stop_schedule : "true"
+  aws_profile: trademo
+
+
+
+k8s: 
+  context: "internal-trademo.com"
+  namespace: "default"
+  replicas: 3
+  deployment_annotations:
+    start_stop_schedule : "true"
+  sts_annotations:
+    start_stop_schedule : "true"
+
+actions_on:
+    - k8s:
+        - deployment
+        - sts
+    
+    # - aws:
+    #     - ec2
+    #     - rds

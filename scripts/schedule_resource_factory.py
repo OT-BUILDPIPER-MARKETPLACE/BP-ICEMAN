@@ -2,60 +2,54 @@ import sys, os, argparse, logging, yaml, json
 import json_log_formatter
 import pathlib
 import boto3
+from otfilesystemlibs import yaml_manager
+import aws_resources
+import k8s_resources
 from botocore.exceptions import ClientError
-SCRIPT_PATH = pathlib.Path(__file__).parent.resolve()
-sys.path.insert(1, f'{SCRIPT_PATH}/../lib')
-import load_yaml_config
+import schedule_resource_logger
 
 
 CONF_PATH_ENV_KEY = "CONF_PATH"
 LOG_PATH = "/ot/aws-resource-scheduler.log"
 
-FORMATTER = json_log_formatter.VerboseJSONFormatter()
-LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
-
-FILE_HANDLER = logging.FileHandler(LOG_PATH)
-STREAM_HANDLER = logging.StreamHandler(sys.stdout)
-
-FILE_HANDLER.setFormatter(FORMATTER)
-STREAM_HANDLER.setFormatter(FORMATTER)
-
-LOGGER.addHandler(FILE_HANDLER)
-LOGGER.addHandler(STREAM_HANDLER)
-
-# import file
-import aws_resources
-import k8s_resources
-
-
+LOGGER = schedule_resource_logger._get_logging(LOG_PATH)
 
 
 def _schedule_Resources(args):
 
     LOGGER.info(f'Fetching properties from conf file: {args.property_file_path}.')
 
-    properties = load_yaml_config._getProperty(args.property_file_path)
+    yaml_loader = yaml_manager.getYamlLoader()
+    properties = yaml_loader._loadYaml(args.property_file_path)
 
     LOGGER.info(f'Properties fetched from conf file.')
 
     if properties:
 
-        for x in properties['actions_on']:
+        for resources in properties['actions_on']:
             
-            if "k8s" in x.keys():
+            if "k8s" in resources.keys():
                 if "context" in properties['k8s']:
                     k8s_context = properties['k8s']['context']
                 else:
                     k8s_context = "minikube"
-                k8s_resources._resourceManagerFactory(properties, k8s_context, args)
 
-            elif "aws" in x.keys():
+                if "deployment" in resources['k8s']:
+                    k8s_resources._resourceManagerFactory(properties, k8s_context, "deployment", args)
+                if "sts" in resources['k8s']:
+                    k8s_resources._resourceManagerFactory(properties, k8s_context, "sts", args)
+
+            elif "aws" in resources.keys():
                 if "aws_profile" in properties['aws']:
                     aws_profile = properties['aws']['aws_profile']
                 else:
                     aws_profile = "default"
-                aws_resources._scheduleFactory(properties, aws_profile, args)
+                    
+                if "ec2" in resources['aws']:
+                    aws_resources._scheduleFactory(properties, aws_profile, "ec2", args)
+                if "rds" in resources['aws']:
+                    aws_resources._scheduleFactory(properties, aws_profile, "rds", args)
+                
        
 
 if __name__ == "__main__":
