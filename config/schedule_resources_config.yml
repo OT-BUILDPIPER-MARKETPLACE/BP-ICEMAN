@@ -2,15 +2,15 @@
 aws:
   ec2_tags:
     start_stop_schedule : "true"
-  region: us-east-1
+  region: us-east-2
   rds_tags:
     start_stop_schedule : "true"
-  aws_profile: pankaj
+  aws_profile: trademo
 
 
 
 k8s: 
-  context: "minikube"
+  context: "internal-trademo.com"
   namespace: "default"
   replicas: 3
   deployment_annotations:
@@ -25,3 +25,4 @@ actions_on:
     
     - aws:
         - ec2
+        - rds
