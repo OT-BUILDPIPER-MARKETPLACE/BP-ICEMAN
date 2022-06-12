@@ -62,7 +62,7 @@ def statefulset_replica_change(cli, properties, statefulset, action):
         replicas = 0
 
     for statefulset in statefulset:
-        body = {"apiVersion": "apps/v1", "kind": "Deployment",
+        body = {"apiVersion": "apps/v1", "kind": "StatefulSet",
                 "spec": {"replicas": replicas, }}
         print(cli.patch_namespaced_stateful_set_scale(
             namespace=namespace, name=statefulset, body=body))

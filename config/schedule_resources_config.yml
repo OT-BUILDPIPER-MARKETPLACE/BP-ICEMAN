@@ -23,6 +23,6 @@ actions_on:
         - deployment
         - sts
     
-    # - aws:
-    #     - ec2
-    #     - rds
+    - aws:
+        - ec2
+        - rds
