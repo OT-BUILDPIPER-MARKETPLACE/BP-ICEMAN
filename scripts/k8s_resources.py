@@ -108,7 +108,7 @@ def _resourceManagerFactory(properties, kube_context, resource_type,  args):
 
                 else:
                     LOGGER.warning(
-                        f'No deployments found on the basis of tag filters provided in conf file in context {properties["context"]} ')
+                        f'No deployments found on the basis of tag filters provided in conf file in context {properties["k8s"]["context"]} ')
             else:
                 LOGGER.warning(f' No deployment annotations details mentioned for filtering in the config file')
                 
@@ -150,7 +150,7 @@ def _resourceManagerFactory(properties, kube_context, resource_type,  args):
 
                 else:
                     LOGGER.warning(
-                        f'No statefulset found on the basis of tag filters provided in conf file in context {properties["context"]} ')
+                        f'No statefulset found on the basis of tag filters provided in conf file in context {properties["k8s"]["context"]} ')
 
         else:
             LOGGER.warning(
