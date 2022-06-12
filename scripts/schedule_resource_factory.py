@@ -10,7 +10,7 @@ import schedule_resource_logger
 
 
 CONF_PATH_ENV_KEY = "CONF_PATH"
-LOG_PATH = "/ot/aws-resource-scheduler.log"
+LOG_PATH = "/var/log/ot/aws-resource-scheduler.log"
 
 LOGGER = schedule_resource_logger._get_logging(LOG_PATH)
 

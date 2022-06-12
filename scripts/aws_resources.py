@@ -4,7 +4,7 @@ from otawslibs import generate_aws_session , aws_resource_tag_factory , aws_ec2_
 from botocore.exceptions import ClientError
 
 SCHEULE_ACTION_ENV_KEY = "AWS_SCHEDULE_ACTION"
-LOG_PATH = "/ot/aws-resource-scheduler.log"
+LOG_PATH = "/var/log/ot/aws-resource-scheduler.log"
 
 LOGGER = schedule_resource_logger._get_logging(LOG_PATH)
 

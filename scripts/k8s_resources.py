@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 
 SCHEDULE_ACTION_ENV_KEY = "K8s_SCHEDULE_ACTION"
-LOG_PATH = "/ot/aws-resource-scheduler.log"
+LOG_PATH = "/var/log/ot/aws-resource-scheduler.log"
 
 
 LOGGER = schedule_resource_logger._get_logging(LOG_PATH)
