@@ -1,4 +1,4 @@
-import os
+import os, logging
 import schedule_resource_logger
 from kubernetes import client, config
 from botocore.exceptions import ClientError
