@@ -58,19 +58,10 @@ def statefulset_replica_change(cli, properties, statefulset):
             namespace=namespace, name=statefulset, body=body))
 
 
-def _resourceManagerFactory(properties, kube_context, resource_type,  args):
 
-    try:
+def _schedule_deployment(properties, namespace , args):
 
-        LOGGER.info(f'Connecting to Kubernetes Cluster.')
-
-        config.load_kube_config(context=kube_context)
-
-        LOGGER.info(f'Connection to EKS Cluster established.')
-
-        namespace = properties['k8s']['namespace']
-
-        if properties['k8s']['deployment_annotations']:
+    if properties['k8s']['deployment_annotations']:
 
             LOGGER.info(f'Reading deployment annotations')
 
@@ -111,50 +102,73 @@ def _resourceManagerFactory(properties, kube_context, resource_type,  args):
                         f'No deployments found on the basis of tag filters provided in conf file in context {properties["k8s"]["context"]} ')
             else:
                 LOGGER.warning(f' No deployment annotations details mentioned for filtering in the config file')
-                
-        if properties['k8s']['sts_annotations']:
 
-            LOGGER.info(f'Reading statefulset annotations')
 
-            for schedule in properties['k8s']['sts_annotations']:
-                if schedule:
-                    sts_annot = properties['k8s']['sts_annotations']
-                else:
-                    sts_annot = "false"
+def _schedule_sts(properties, namespace , args):
+                    
+    if properties['k8s']['sts_annotations']:
 
-            if sts_annot:
+        LOGGER.info(f'Reading statefulset annotations')
+
+        for schedule in properties['k8s']['sts_annotations']:
+            if schedule:
+                sts_annot = properties['k8s']['sts_annotations']
+            else:
+                sts_annot = "false"
+
+        if sts_annot:
+
+            LOGGER.info(
+                f'Found statefulset annotations details for filtering : {sts_annot}')
+
+            v2client = client.AppsV1Api()
+
+            LOGGER.info(
+                f'Scanning deployments based on annotations {deployment_annot} provided')
+
+            statefulset = statefulset_having_annotation(
+                v2client, namespace, sts_annot)
+
+            if statefulset:
 
                 LOGGER.info(
-                    f'Found statefulset annotations details for filtering : {sts_annot}')
+                    f'Found statefulset resources {statefulset}  based on annotations provided: {sts_annot}')
 
-                v2client = client.AppsV1Api()
+                if os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
 
-                LOGGER.info(
-                    f'Scanning deployments based on annotations {deployment_annot} provided')
-
-                statefulset = statefulset_having_annotation(
-                    v2client, namespace, sts_annot)
-
-                if statefulset:
-
-                    LOGGER.info(
-                        f'Found statefulset resources {statefulset}  based on annotations provided: {sts_annot}')
-
-                    if os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
-
-                        statefulset_replica_change(
-                            v2client, properties, statefulset)
-                    else:
-                        logging.error(
-                            f"{SCHEDULE_ACTION_ENV_KEY} env not set")
-
+                    statefulset_replica_change(
+                        v2client, properties, statefulset)
                 else:
-                    LOGGER.warning(
-                        f'No statefulset found on the basis of tag filters provided in conf file in context {properties["k8s"]["context"]} ')
+                    logging.error(
+                        f"{SCHEDULE_ACTION_ENV_KEY} env not set")
 
+            else:
+                LOGGER.warning(
+                    f'No statefulset found on the basis of tag filters provided in conf file in context {properties["k8s"]["context"]} ')
+
+    else:
+        LOGGER.warning(
+            f'Found annotations in config file but no statefulset annotations details mentioned for filtering')
+
+
+def _resourceManagerFactory(properties, kube_context, resource_type,  args):
+
+    try:
+
+        LOGGER.info(f'Connecting to Kubernetes Cluster.')
+
+        config.load_kube_config(context=kube_context)
+
+        LOGGER.info(f'Connection to EKS Cluster established.')
+
+        namespace = properties['k8s']['namespace']
+
+        if resource_type == "deployment":
+            _schedule_deployment(properties, namespace , args)
+        elif resource_type == "sts":
+            _schedule_sts(properties, namespace , args)
         else:
-            LOGGER.warning(
-                f'Found annotations in config file but no statefulset annotations details mentioned for filtering')
+            LOGGER.info(f'Invalid Resource type provided. Valid values: [deployment,sts]') 
 
 
     except ClientError as e:
