@@ -37,9 +37,14 @@ def statefulset_having_annotation(cli, namespace, sts_annot):
     return statefulset
 
 
-def deployment_replica_change(cli, properties, deployments):
+def deployment_replica_change(cli, properties, deployments, action):
     namespace = properties['k8s']['namespace']
     replicas = properties['k8s']['replicas']
+
+    if action == "start": 
+        replicas = properties['k8s']['replicas']
+    else:
+        replicas = 0
 
     for deployment in deployments:
         body = {"apiVersion": "apps/v1", "kind": "Deployment",
@@ -48,9 +53,14 @@ def deployment_replica_change(cli, properties, deployments):
             namespace=namespace, name=deployment, body=body))
 
 
-def statefulset_replica_change(cli, properties, statefulset):
+def statefulset_replica_change(cli, properties, statefulset, action):
     namespace = properties['k8s']['namespace']
-    replicas = properties['k8s']['replicas']
+
+    if action == "start": 
+        replicas = properties['k8s']['replicas']
+    else:
+        replicas = 0
+
     for statefulset in statefulset:
         body = {"apiVersion": "apps/v1", "kind": "Deployment",
                 "spec": {"replicas": replicas, }}
@@ -89,13 +99,18 @@ def _schedule_deployment(properties, namespace , args):
                     LOGGER.info(
                         f'Found deployments resources {deployments}  based on annotations provided: {deployment_annot}')
 
-                    if os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
+                    if os.environ[SCHEDULE_ACTION_ENV_KEY] == "start":
 
                         deployment_replica_change(
-                            v2client, properties, deployments)
+                            v2client, properties, deployments, "start")
+
+                    if os.environ[SCHEDULE_ACTION_ENV_KEY] == "stop":
+
+                        deployment_replica_change(
+                            v2client, properties, deployments, "stop")
                     else:
                         logging.error(
-                            f"{SCHEDULE_ACTION_ENV_KEY} env not set")
+                            f"{SCHEDULE_ACTION_ENV_KEY} env not set or value is invalid. Valid value: start, stop")
 
                 else:
                     LOGGER.warning(
@@ -134,13 +149,19 @@ def _schedule_sts(properties, namespace , args):
                 LOGGER.info(
                     f'Found statefulset resources {statefulset}  based on annotations provided: {sts_annot}')
 
-                if os.environ[SCHEDULE_ACTION_ENV_KEY] == "resize":
+                if os.environ[SCHEDULE_ACTION_ENV_KEY] == "start":
 
                     statefulset_replica_change(
-                        v2client, properties, statefulset)
+                        v2client, properties, statefulset, "start")
+                
+                if os.environ[SCHEDULE_ACTION_ENV_KEY] == "stop":
+
+                    statefulset_replica_change(
+                        v2client, properties, statefulset, "stop")
+
                 else:
                     logging.error(
-                        f"{SCHEDULE_ACTION_ENV_KEY} env not set")
+                        f"{SCHEDULE_ACTION_ENV_KEY} env not set or value is invalid. Valid value: start, stop")
 
             else:
                 LOGGER.warning(
