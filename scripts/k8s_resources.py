@@ -124,7 +124,7 @@ def _schedule_sts(properties, namespace , args):
             v2client = client.AppsV1Api()
 
             LOGGER.info(
-                f'Scanning deployments based on annotations {deployment_annot} provided')
+                f'Scanning statefulset based on annotations {sts_annot} provided')
 
             statefulset = statefulset_having_annotation(
                 v2client, namespace, sts_annot)
