@@ -16,19 +16,18 @@ As **ICEMAN** has capability to freeze objects, similarly I'll help to freeze/un
 ## SAMPLE CONF FILE
 
 ```
-
 aws:
   ec2_tags:
     start_stop_schedule : "true"
-  region: 
+  region: us-east-2
   rds_tags:
     start_stop_schedule : "true"
-  aws_profile: 
+  aws_profile: trademo
 
 k8s: 
-  context: 
-  namespace: 
-  replicas: 
+  context: "internal-trademo.com"
+  namespaces: ["default","test"]
+  replicas: 3
   deployment_annotations:
     start_stop_schedule : "true"
   sts_annotations:
@@ -41,6 +40,8 @@ actions_on:
     
     - aws:
         - ec2
+        - rds
+
 ```
 
 ## USAGE
@@ -62,7 +63,7 @@ To run this utility locally from your system.Follow below steps.
    ```
    ```
    export AWS_SCHEDULE_ACTION="start"
-   export K8s_SCHEDULE_ACTION="resize"
+   export K8s_SCHEDULE_ACTION="start"
 
    ```
 
@@ -71,3 +72,20 @@ To run this utility locally from your system.Follow below steps.
    ```
    python3 scripts/schedule_resource_factory.py 
    ```
+
+### USING DOCKER
+
+To run this utility using docker.Follow below steps.
+- Clone this repo.
+- Make changes to configuration files as required i.e config/schedule_resources.yml.
+- Build the docker image using Makefile
+  ```
+   make build VERSION=<Provide image tag here>
+  ```
+  ![make_build](images/make_build.png)
+
+- Run the application
+  ```
+  make run VERSION=<Provide build image tag> CONF_PATH=<Conf-Path> AWS_SCHEDULE_ACTION=<start/stop> K8s_SCHEDULE_ACTION=<start/stop>
+  ```
+  ![make_run](images/make_run.png) 

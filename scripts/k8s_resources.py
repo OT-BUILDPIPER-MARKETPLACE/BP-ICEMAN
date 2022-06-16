@@ -37,9 +37,7 @@ def statefulset_having_annotation(cli, namespace, sts_annot):
     return statefulset
 
 
-def deployment_replica_change(cli, properties, deployments, action):
-    namespace = properties['k8s']['namespace']
-    replicas = properties['k8s']['replicas']
+def deployment_replica_change(cli, properties, deployments, namespace, action):
 
     if action == "start": 
         replicas = properties['k8s']['replicas']
@@ -53,8 +51,7 @@ def deployment_replica_change(cli, properties, deployments, action):
             namespace=namespace, name=deployment, body=body))
 
 
-def statefulset_replica_change(cli, properties, statefulset, action):
-    namespace = properties['k8s']['namespace']
+def statefulset_replica_change(cli, properties, statefulset, namespace, action):
 
     if action == "start": 
         replicas = properties['k8s']['replicas']
@@ -102,12 +99,12 @@ def _schedule_deployment(properties, namespace , args):
                     if os.environ[SCHEDULE_ACTION_ENV_KEY] == "start":
 
                         deployment_replica_change(
-                            v2client, properties, deployments, "start")
+                            v2client, properties, deployments, namespace, "start")
 
                     if os.environ[SCHEDULE_ACTION_ENV_KEY] == "stop":
 
                         deployment_replica_change(
-                            v2client, properties, deployments, "stop")
+                            v2client, properties, deployments, namespace, "stop")
                     else:
                         logging.error(
                             f"{SCHEDULE_ACTION_ENV_KEY} env not set or value is invalid. Valid value: start, stop")
@@ -152,12 +149,12 @@ def _schedule_sts(properties, namespace , args):
                 if os.environ[SCHEDULE_ACTION_ENV_KEY] == "start":
 
                     statefulset_replica_change(
-                        v2client, properties, statefulset, "start")
+                        v2client, properties, statefulset, namespace, "start")
                 
                 if os.environ[SCHEDULE_ACTION_ENV_KEY] == "stop":
 
                     statefulset_replica_change(
-                        v2client, properties, statefulset, "stop")
+                        v2client, properties, statefulset, namespace, "stop")
 
                 else:
                     logging.error(
@@ -182,14 +179,16 @@ def _resourceManagerFactory(properties, kube_context, resource_type,  args):
 
         LOGGER.info(f'Connection to EKS Cluster established.')
 
-        namespace = properties['k8s']['namespace']
+        namespaces = properties['k8s']['namespaces']
 
-        if resource_type == "deployment":
-            _schedule_deployment(properties, namespace , args)
-        elif resource_type == "sts":
-            _schedule_sts(properties, namespace , args)
-        else:
-            LOGGER.info(f'Invalid Resource type provided. Valid values: [deployment,sts]') 
+        for namespace in namespaces:
+            
+            if resource_type == "deployment":
+                _schedule_deployment(properties, namespace , args)
+            elif resource_type == "sts":
+                _schedule_sts(properties, namespace , args)
+            else:
+                LOGGER.info(f'Invalid Resource type provided. Valid values: [deployment,sts]') 
 
 
     except ClientError as e:
