@@ -10,10 +10,10 @@ LOGGER = schedule_resource_logger._get_logging(LOG_PATH)
 
 
 def _fetch_instance_ids(client, service, tags):
-    
+
     aws_resource_finder = aws_resource_tag_factory.getResoruceFinder(client,service)
     instance_ids = aws_resource_finder._get_resources_using_tags(tags)
-            
+
     return instance_ids
 
 def _schedule_ec2(properties, session , args):
@@ -21,11 +21,11 @@ def _schedule_ec2(properties, session , args):
     for property in properties['aws']:
 
         if property == "ec2_tags":
-            
+
             LOGGER.info(f'Reading Ec2 tags')
 
             ec2_tags = properties['aws']['ec2_tags']
-            
+
             if ec2_tags:
 
                 LOGGER.info(f'Found Ec2 tags details for filtering : {ec2_tags}')
@@ -43,7 +43,7 @@ def _schedule_ec2(properties, session , args):
                     LOGGER.info(f'Found AWS EC2 resources {instance_ids} in  {properties["aws"]["region"]} region based on tags provided: {ec2_tags}',extra={"ec2_ids": instance_ids})
 
                     if os.environ[SCHEULE_ACTION_ENV_KEY] == "start":
-                        
+
                         aws_ec2_action._ec2_perform_action(instance_ids,action="start")
 
                     elif os.environ[SCHEULE_ACTION_ENV_KEY] == "stop":
@@ -89,17 +89,17 @@ def _schedule_rds(properties, session , args):
                         aws_rds_action._rds_perform_action(instance_ids,action="start")
 
                     elif os.environ[SCHEULE_ACTION_ENV_KEY] == "stop":
-                        
+
                         aws_rds_action._rds_perform_action(instance_ids,action="stop")
 
                     else:
                         logging.error(f"{SCHEULE_ACTION_ENV_KEY} env not set")
-                
+
                 else:
                     LOGGER.warning(f'No RDS instances found on the basis of tag filters provided in conf file in region {properties["aws"]["region"]} ',extra={"rds_ids": instance_ids})
             else:
                 LOGGER.warning(f'Found rds_tags key in config file but no RDS tags details mentioned for filtering',extra={"rds_ids": instance_ids})
-            
+
         else:
             LOGGER.info("Scanning AWS service details in config")
 
@@ -107,9 +107,9 @@ def _schedule_rds(properties, session , args):
 def _scheduleFactory(properties, aws_profile, resource_type , args):
 
     instance_ids = []
-            
+
     try:
-        
+
         LOGGER.info(f'Connecting to AWS.')
 
         if aws_profile:
@@ -124,7 +124,7 @@ def _scheduleFactory(properties, aws_profile, resource_type , args):
         elif resource_type == "rds":
             _schedule_rds(properties, session , args)
         else:
-            LOGGER.info(f'Invalid Resource type provided. Valid values: [ec2,rds]') 
+            LOGGER.info(f'Invalid Resource type provided. Valid values: [ec2,rds]')
 
     except ClientError as e:
         if "An error occurred (AuthFailure)" in str(e):
