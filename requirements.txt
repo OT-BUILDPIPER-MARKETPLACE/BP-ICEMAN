@@ -6,5 +6,5 @@ boto3
 awscli
 JSON-log-formatter
 kubernetes==22.6.0
-git+https://github.com/OT-PYTHON-UTILS/ot-aws-libs.git@develop
-git+https://github.com/OT-PYTHON-UTILS/ot-filesystem-libs.git@develop
+git+https://github.com/OT-PYTHON-UTILS/ot-aws-libs.git@main
+git+https://github.com/OT-PYTHON-UTILS/ot-filesystem-libs.git@main
